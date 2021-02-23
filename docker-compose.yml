@@ -1,0 +1,41 @@
+version: '3'
+services:
+  openvpn:
+    cap_add:
+     - NET_ADMIN
+    image: kylemanna/openvpn
+    container_name: openvpn
+    ports:
+    restart: always
+     - "1194:1194/udp"
+     - "1194:1194/tcp"
+    volumes:
+     - ./openvpn-data/conf:/etc/openvpn
+     - /etc/localtime:/etc/localtime:ro
+     - /etc/timezone:/etc/timezone:ro
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    cap_add: 
+      - NET_ADMIN
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+    depends_on:
+      - openvpn
+    ports:
+      - "80:80/tcp"
+      - "8081:80/tcp"
+      - "8081:80/udp"
+    environment:
+      TZ: 'America/Montreal'
+      WEBPASSWORD: "rainbird99"
+    # Volumes store your data between container upgrades
+    volumes:
+      - './etc-pihole/:/etc/pihole/'
+      - './etc-dnsmasq.d/:/etc/dnsmasq.d/'
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+        # Recommended but not required (DHCP needs NET_ADMIN)
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    restart: always
