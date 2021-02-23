@@ -5,8 +5,8 @@ services:
      - NET_ADMIN
     image: kylemanna/openvpn
     container_name: openvpn
-    ports:
     restart: always
+    ports:
      - "1194:1194/udp"
      - "1194:1194/tcp"
     volumes:
